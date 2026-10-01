@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -32,3 +33,130 @@
 </style>
 </head>
 <body>
+<canvas id="ceu"></canvas>
+
+<div class="topo">
+  <h1>Deivid Vasconcelos</h1>
+  <p class="sub">Site em obras. O céu já está pronto.</p>
+</div>
+
+<div class="base">
+  <p class="contador" id="contador"></p>
+  <p class="dica" id="dica">Toque no céu.</p>
+  <div class="rodape">
+    <p class="direitos">© 2026 Deivid Vasconcelos. Todos os direitos reservados.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var c = document.getElementById("ceu"), x = c.getContext("2d");
+  var contador = document.getElementById("contador");
+  var dica = document.getElementById("dica");
+  var reduzir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var R = 1, W = 0, H = 0, estrelas = [], meteoros = [], faiscas = [], aneis = [];
+  var total = 0, ultimoToque = 0;
+
+  function ajustar() {
+    R = window.devicePixelRatio || 1;
+    W = c.width = innerWidth * R;
+    H = c.height = innerHeight * R;
+    estrelas = [];
+    for (var n = 0; n < 110; n++) estrelas.push({
+      x: Math.random() * W, y: Math.random() * H,
+      r: (Math.random() * 1.1 + 0.3) * R,
+      a: Math.random() * 0.5 + 0.25, f: Math.random() * 6.28, v: Math.random() * 0.002 + 0.0008
+    });
+  }
+
+  // meteoro que entra de cima, à direita, e queima no ponto (tx, ty)
+  function lancar(tx, ty, atraso) {
+    var ang = (Math.random() * 20 + 115) * Math.PI / 180; // direção de queda
+    var dist = (Math.random() * 120 + 220) * R;
+    meteoros.push({
+      sx: tx - Math.cos(ang) * dist, sy: ty - Math.sin(ang) * dist,
+      tx: tx, ty: ty, t: -(atraso || 0), dur: 38 + Math.random() * 14
+    });
+  }
+
+  function queimar(m) {
+    aneis.push({ x: m.tx, y: m.ty, r: 2 * R, a: 0.8 });
+    for (var i = 0; i < 12; i++) {
+      var a = Math.random() * 6.28, v = (Math.random() * 1.6 + 0.4) * R;
+      faiscas.push({ x: m.tx, y: m.ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v, a: 1 });
+    }
+  }
+
+  function toque(e) {
+    var px = e.clientX * R, py = e.clientY * R;
+    lancar(px, py, 0);
+    total++;
+    contador.textContent = total + (total === 1 ? " meteoro" : " meteoros");
+    dica.style.opacity = 0;
+    // a cada 10 toques, uma chuva
+    if (total % 10 === 0) {
+      for (var i = 0; i < 14; i++) lancar(Math.random() * W, Math.random() * H * 0.8, i * 6);
+    }
+    ultimoToque = performance.now();
+  }
+
+  function quadro(agora) {
+    x.clearRect(0, 0, W, H);
+
+    estrelas.forEach(function (s) {
+      var a = reduzir ? s.a : s.a * (0.7 + 0.3 * Math.sin(agora * s.v + s.f));
+      x.globalAlpha = a; x.fillStyle = "#e9e4d8";
+      x.beginPath(); x.arc(s.x, s.y, s.r, 0, 6.283); x.fill();
+    });
+
+    // meteoro ocasional se ninguém tocar
+    if (!reduzir && meteoros.length === 0 && Math.random() < 0.004) {
+      lancar(Math.random() * W * 0.8 + W * 0.1, Math.random() * H * 0.6 + H * 0.2, 0);
+    }
+
+    meteoros = meteoros.filter(function (m) {
+      m.t++;
+      if (m.t < 0) return true;
+      var p = Math.min(m.t / m.dur, 1);
+      var e = p * p * 0.6 + p * 0.4; // acelera ao entrar na atmosfera
+      var hx = m.sx + (m.tx - m.sx) * e, hy = m.sy + (m.ty - m.sy) * e;
+      var cauda = Math.min(m.t / 6, 1) * 90 * R;
+      var dx = m.tx - m.sx, dy = m.ty - m.sy, d = Math.sqrt(dx * dx + dy * dy);
+      var ex = hx - dx / d * cauda, ey = hy - dy / d * cauda;
+      var g = x.createLinearGradient(hx, hy, ex, ey);
+      g.addColorStop(0, "rgba(255,255,255," + (1 - p * 0.3) + ")");
+      g.addColorStop(0.25, "rgba(207,227,255,0.7)");
+      g.addColorStop(1, "rgba(207,227,255,0)");
+      x.globalAlpha = 1; x.strokeStyle = g; x.lineWidth = 2 * R; x.lineCap = "round";
+      x.beginPath(); x.moveTo(hx, hy); x.lineTo(ex, ey); x.stroke();
+      if (p >= 1) { queimar(m); return false; }
+      return true;
+    });
+
+    aneis = aneis.filter(function (r) {
+      r.r += 1.6 * R; r.a -= 0.025;
+      if (r.a <= 0) return false;
+      x.globalAlpha = r.a; x.strokeStyle = "#cfe3ff"; x.lineWidth = 1 * R;
+      x.beginPath(); x.arc(r.x, r.y, r.r, 0, 6.283); x.stroke();
+      return true;
+    });
+
+    faiscas = faiscas.filter(function (f) {
+      f.x += f.vx; f.y += f.vy; f.vx *= 0.96; f.vy *= 0.96; f.a -= 0.02;
+      if (f.a <= 0) return false;
+      x.globalAlpha = f.a; x.fillStyle = "#ffffff";
+      x.beginPath(); x.arc(f.x, f.y, 1.2 * R, 0, 6.283); x.fill();
+      return true;
+    });
+
+    requestAnimationFrame(quadro);
+  }
+
+  ajustar();
+  addEventListener("resize", ajustar);
+  addEventListener("pointerdown", toque);
+  requestAnimationFrame(quadro);
+})();
+</script>
+</body>
+</html>
