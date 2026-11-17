@@ -1,116 +1,1122 @@
-
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Deivid Vasconcelos</title>
+<title>Deivid Vasconcelos — O Céu &amp; Caderno do Cais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --ceu:#0c1020; --papel:#e9e4d8; --apagado:#7a819e; }
-  * { box-sizing:border-box; }
-  html, body { height:100%; margin:0; }
+  :root {
+    --ceu: #0c1020;
+    --ceu-topo: #070a15;
+    --ceu-horizonte: #141c36;
+    --papel: #e9e4d8;
+    --apagado: #7a819e;
+    --estrela-fria: #cfe3ff;
+
+    --night: #0A0707;
+    --bone: #EDE6DA;
+    --muted: #A39A91;
+    --blood: #B0372B;
+
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--ceu);
+    color: var(--papel);
+    font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
-    background:var(--ceu); color:var(--papel);
-    font-family:Georgia,"Times New Roman",serif;
-    overflow:hidden; touch-action:manipulation;
-    -webkit-user-select:none; user-select:none;
+    overflow: hidden;
+    touch-action: manipulation;
+    transition: background 1.2s cubic-bezier(.22, .61, .36, 1);
   }
-  canvas { position:fixed; top:0; left:0; width:100%; height:100%; display:block; z-index:0; }
-  .topo, .base {
-    position:fixed; left:0; right:0; z-index:1; text-align:center; pointer-events:none;
-    padding:0 20px;
+
+  body.modo-intervalo {
+    background: var(--night);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
-  .topo { top:0; padding-top:36px; padding-top:calc(env(safe-area-inset-top,0px) + 36px); }
-  .base { bottom:0; padding-bottom:36px; padding-bottom:calc(env(safe-area-inset-bottom,0px) + 36px); }
-  h1 { font-weight:normal; font-size:26px; font-size:clamp(22px,5vw,30px); margin:0; }
-  .sub { font-family:Arial,sans-serif; font-size:13px; color:var(--apagado); margin:8px 0 0; }
-  .contador { font-size:34px; font-size:clamp(28px,8vw,44px); margin:0; min-height:1.2em; }
-  .dica { font-family:Arial,sans-serif; font-size:13px; color:var(--apagado); margin:6px 0 0; transition:opacity .8s; }
-  .rodape { margin:32px auto 0; max-width:420px; }
-  .frase { font-style:italic; font-size:clamp(16px,4.2vw,19px); line-height:1.45; margin:0; }
-  .assina { font-size:14px; color:var(--apagado); margin:8px 0 0; }
-  .direitos { font-family:Arial,sans-serif; font-size:11px; color:var(--apagado); margin:22px 0 0; opacity:.8; }
+
+  body.modo-notas {
+    background: var(--ceu);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Fundo atmosférico */
+  .atmosfera {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% 105%, rgba(30, 44, 82, 0.48), transparent 70%),
+      radial-gradient(ellipse 65% 40% at 75% 18%, rgba(120, 155, 220, 0.08), transparent 70%),
+      linear-gradient(180deg, var(--ceu-topo) 0%, var(--ceu) 58%, var(--ceu-horizonte) 100%);
+    transition: opacity 1.1s ease;
+  }
+
+  .atmosfera-intervalo {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    background:
+      radial-gradient(ellipse 70% 38% at 50% 0%, rgba(176, 55, 43, 0.24), transparent 70%),
+      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(45, 16, 14, 0.28), transparent 75%),
+      var(--night);
+    transition: opacity 1.1s ease;
+  }
+
+  body.modo-intervalo .atmosfera { opacity: 0; }
+  body.modo-intervalo .atmosfera-intervalo { opacity: 1; }
+
+  .grao {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.045;
+    transition: opacity 1.1s ease;
+  }
+  body.modo-intervalo .grao { opacity: 0.09; }
+
+  canvas#ceu {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+    transition: opacity 1.1s ease;
+  }
+  body.modo-intervalo canvas#ceu,
+  body.modo-notas canvas#ceu {
+    opacity: 0.34;
+    pointer-events: none;
+  }
+
+  /* Navegação */
+  .nav-barra {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 7px;
+    border-radius: 999px;
+    background: rgba(12, 16, 32, 0.62);
+    border: 1px solid rgba(233, 228, 216, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    max-width: calc(100vw - 20px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    transition: background 0.8s ease, border-color 0.8s ease, opacity 0.35s ease;
+  }
+  .nav-barra::-webkit-scrollbar { display: none; }
+
+  body.modo-intervalo .nav-barra {
+    background: rgba(10, 7, 7, 0.74);
+    border-color: rgba(237, 230, 218, 0.14);
+  }
+
+  .nav-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--apagado);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: color 0.25s ease, background 0.25s ease;
+  }
+
+  .nav-btn:hover { color: var(--papel); }
+
+  .nav-btn.ativo {
+    color: var(--papel);
+    background: rgba(233, 228, 216, 0.11);
+  }
+
+  body.modo-intervalo .nav-btn.ativo {
+    color: var(--bone);
+    background: rgba(176, 55, 43, 0.22);
+  }
+
+  .ponto-fenda {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--blood);
+    box-shadow: 0 0 8px rgba(176, 55, 43, 0.9);
+  }
+
+  .nav-sep {
+    width: 1px;
+    height: 14px;
+    background: rgba(233, 228, 216, 0.12);
+    flex-shrink: 0;
+  }
+
+  .btn-icone { padding: 6px 9px; }
+
+  /* Vista 1: O Céu */
+  .vista-ceu {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 78px)
+      20px
+      calc(env(safe-area-inset-bottom, 0px) + 28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  body.modo-intervalo .vista-ceu,
+  body.modo-notas .vista-ceu {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+  }
+
+  .topo-ceu {
+    max-width: 520px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .topo-ceu h1 {
+    font-weight: 400;
+    font-size: clamp(28px, 6vw, 40px);
+    letter-spacing: 0.02em;
+    margin: 0;
+    color: var(--papel);
+    text-shadow: 0 2px 24px rgba(12, 16, 32, 0.9);
+  }
+
+  .sub {
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--apagado);
+    margin: 8px 0 0;
+    letter-spacing: 0.03em;
+  }
+
+  .base-ceu {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .contador {
+    font-size: clamp(28px, 7.5vw, 44px);
+    font-weight: 400;
+    margin: 0;
+    min-height: 1.2em;
+    color: var(--papel);
+    text-shadow: 0 0 22px rgba(207, 227, 255, 0.2);
+  }
+
+  .dica {
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 12.5px;
+    color: var(--apagado);
+    margin: 6px 0 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .portal-intervalo {
+    pointer-events: auto;
+    margin-top: 22px;
+    appearance: none;
+    background: rgba(10, 7, 7, 0.45);
+    border: 1px solid rgba(176, 55, 43, 0.38);
+    color: var(--bone);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 17px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+  }
+
+  .portal-intervalo:hover {
+    border-color: rgba(176, 55, 43, 0.85);
+    background: rgba(176, 55, 43, 0.14);
+    box-shadow: 0 0 24px rgba(176, 55, 43, 0.22);
+    transform: translateY(-1px);
+  }
+
+  .portal-fenda {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: var(--bone);
+    box-shadow: 0 0 6px rgba(176, 55, 43, 0.9);
+  }
+
+  .portal-sub {
+    font-family: "Inter", Arial, sans-serif;
+    font-style: normal;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .rodape-ceu { margin-top: 20px; }
+
+  .direitos {
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 11px;
+    color: var(--apagado);
+    margin: 0;
+    opacity: 0.78;
+  }
+
+  /* Vista 2: Intervalo — Tonares (compactado para leitura e print inteiro) */
+  .vista-intervalo {
+    position: relative;
+    z-index: 6;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  body.modo-intervalo .vista-intervalo {
+    display: block;
+    opacity: 1;
+  }
+
+  .intervalo-main {
+    position: relative;
+    max-width: 26rem;
+    margin: 0 auto;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 5rem)
+      1.5rem
+      calc(env(safe-area-inset-bottom, 0px) + 3rem);
+  }
+
+  .intervalo-titulo {
+    margin: 0 0 2rem;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(2.5rem, 11vw, 3.6rem);
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--bone);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.16em;
+  }
+
+  .intervalo-titulo .fenda {
+    display: block;
+    width: 1px;
+    height: 1.05em;
+    background: var(--bone);
+    box-shadow: 0 0 0.35em 0.04em rgba(176, 55, 43, 0.8), 0 0 1.1em 0.1em rgba(176, 55, 43, 0.35);
+    transform-origin: center;
+  }
+
+  body.modo-intervalo .intervalo-titulo .fenda {
+    animation: abre 1.8s cubic-bezier(.2, .7, .2, 1) 0.15s both;
+  }
+
+  body.modo-intervalo .intervalo-titulo span {
+    animation: surge 2.2s ease-out 0.5s both;
+  }
+
+  @keyframes abre {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes surge {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .estrofe {
+    margin: 0 0 1.25rem;
+    color: var(--bone);
+  }
+
+  .estrofe span {
+    display: block;
+    font-size: clamp(1.08rem, 3.8vw, 1.25rem);
+    font-weight: 400;
+    line-height: 1.42;
+    letter-spacing: 0.005em;
+  }
+
+  .estrofe span + span { margin-top: 0.04rem; }
+
+  .fim {
+    margin: 1.9rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(237, 230, 218, 0.18);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .fim b {
+    display: block;
+    font-weight: 500;
+    color: var(--bone);
+    font-size: 1.12rem;
+  }
+
+  .acoes-intervalo {
+    margin-top: 1.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .acoes-compartilhar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-sutileza {
+    appearance: none;
+    background: transparent;
+    border: 1px solid rgba(237, 230, 218, 0.2);
+    color: var(--bone);
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 11.5px;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .btn-sutileza:hover {
+    border-color: rgba(237, 230, 218, 0.5);
+    background: rgba(237, 230, 218, 0.07);
+  }
+
+  .btn-carmesim {
+    border-color: rgba(176, 55, 43, 0.55);
+    background: rgba(176, 55, 43, 0.14);
+  }
+
+  .btn-carmesim:hover {
+    border-color: rgba(176, 55, 43, 0.9);
+    background: rgba(176, 55, 43, 0.25);
+  }
+
+  /* Modo Print / Stories (oculta barra e botões para print limpo do texto inteiro) */
+  body.modo-print .nav-barra,
+  body.modo-print .acoes-intervalo {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  body.modo-print .intervalo-main {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+  }
+
+  .sair-print-dica {
+    display: none;
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 11px;
+    color: rgba(237, 230, 218, 0.45);
+    background: rgba(10, 7, 7, 0.65);
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(237, 230, 218, 0.12);
+    cursor: pointer;
+  }
+
+  body.modo-print .sair-print-dica {
+    display: block;
+    animation: sumirDica 4s ease forwards;
+  }
+
+  @keyframes sumirDica {
+    0%, 65% { opacity: 1; }
+    100% { opacity: 0.18; }
+  }
+
+  /* Vista 3: Notas, Física & Arquivos */
+  .vista-notas {
+    position: relative;
+    z-index: 6;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  body.modo-notas .vista-notas {
+    display: block;
+    opacity: 1;
+  }
+
+  .notas-main {
+    max-width: 38rem;
+    margin: 0 auto;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 6rem)
+      1.5rem
+      calc(env(safe-area-inset-bottom, 0px) + 4rem);
+  }
+
+  .notas-cabecalho {
+    margin-bottom: 2.2rem;
+  }
+
+  .notas-cabecalho h1 {
+    font-weight: 400;
+    font-size: clamp(28px, 6vw, 38px);
+    margin: 0 0 8px;
+    color: var(--papel);
+  }
+
+  .notas-cabecalho p {
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--apagado);
+    margin: 0;
+  }
+
+  .notas-grade {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 600px) {
+    .notas-grade {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .nota-card {
+    background: rgba(16, 21, 40, 0.58);
+    border: 1px solid rgba(233, 228, 216, 0.11);
+    border-radius: 14px;
+    padding: 18px 20px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .nota-card.destaque-cais {
+    border-color: rgba(176, 55, 43, 0.34);
+    background: rgba(20, 12, 14, 0.55);
+  }
+
+  .nota-etiqueta {
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--apagado);
+  }
+
+  .nota-card h2 {
+    margin: 6px 0 6px;
+    font-size: 21px;
+    font-weight: 400;
+    color: var(--papel);
+  }
+
+  .nota-card p {
+    margin: 0;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--apagado);
+  }
+
+  .nota-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid rgba(233, 228, 216, 0.08);
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 11px;
+    color: var(--apagado);
+  }
+
+  .nota-link-btn {
+    appearance: none;
+    border: 1px solid rgba(176, 55, 43, 0.5);
+    background: rgba(176, 55, 43, 0.16);
+    color: var(--bone);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+
+  .nota-link-btn:hover {
+    background: rgba(176, 55, 43, 0.3);
+    border-color: rgba(176, 55, 43, 0.85);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intervalo-titulo .fenda,
+    .intervalo-titulo span {
+      animation: none;
+    }
+    body, .atmosfera, .atmosfera-intervalo, .vista-ceu, .vista-intervalo, .vista-notas {
+      transition: none;
+    }
+  }
 </style>
 </head>
 <body>
+
+<div class="atmosfera" aria-hidden="true"></div>
+<div class="atmosfera-intervalo" aria-hidden="true"></div>
+
+<svg class="grao" aria-hidden="true">
+  <filter id="g">
+    <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/>
+    <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#g)"/>
+</svg>
+
 <canvas id="ceu"></canvas>
 
-<div class="topo">
-  <h1>Deivid Vasconcelos</h1>
-  <p class="sub">Site em obras. O céu já está pronto.</p>
-</div>
+<nav class="nav-barra" aria-label="Navegação do site">
+  <button type="button" class="nav-btn ativo" id="btn-ceu">O Céu</button>
+  <button type="button" class="nav-btn" id="btn-intervalo">
+    <span class="ponto-fenda" aria-hidden="true"></span>
+    Intervalo
+  </button>
+  <button type="button" class="nav-btn" id="btn-notas">Notas, Física &amp; Arquivos</button>
+  <span class="nav-sep" aria-hidden="true"></span>
+  <button type="button" class="nav-btn btn-icone" id="btn-som" aria-pressed="false" title="Alternar som ambiente">Som: off</button>
+</nav>
 
-<div class="base">
-  <p class="contador" id="contador"></p>
-  <p class="dica" id="dica">Toque no céu.</p>
-  <div class="rodape">
-    <p class="direitos">© 2026 Deivid Vasconcelos. Todos os direitos reservados.</p>
+<!-- Vista 1: Céu interativo -->
+<section class="vista-ceu" id="vista-ceu" aria-label="Céu de Deivid Vasconcelos">
+  <header class="topo-ceu">
+    <h1>Deivid Vasconcelos</h1>
+    <p class="sub">Site em obras. O céu já está pronto.</p>
+  </header>
+
+  <div class="base-ceu">
+    <p class="contador" id="contador"></p>
+    <p class="dica" id="dica">Toque no céu.</p>
+
+    <button type="button" class="portal-intervalo" id="btn-abrir-intervalo">
+      <span class="portal-sub">Caderno do Cais</span>
+      <i class="portal-fenda" aria-hidden="true"></i>
+      <span>Ler <em>Intervalo</em></span>
+    </button>
+
+    <footer class="rodape-ceu">
+      <p class="direitos">© 2026 Deivid Vasconcelos. Todos os direitos reservados.</p>
+    </footer>
   </div>
-</div>
+</section>
+
+<!-- Vista 2: Intervalo — Tonares -->
+<section class="vista-intervalo" id="vista-intervalo" aria-label="Intervalo, por Tonares">
+  <main class="intervalo-main" id="intervalo-card">
+    <h1 class="intervalo-titulo" aria-label="Intervalo">
+      <span aria-hidden="true">Inter</span><i class="fenda" aria-hidden="true"></i><span aria-hidden="true">valo</span>
+    </h1>
+
+    <p class="estrofe">
+      <span>Entre aquilo que fomos</span>
+      <span>e aquilo que estamos nos tornando,</span>
+      <span>existe um caminho</span>
+      <span>feito de rupturas, memórias e reconstruções.</span>
+      <span>Talvez seja nesse intervalo</span>
+      <span>que nasça um novo eu.</span>
+    </p>
+
+    <p class="estrofe">
+      <span>Não chega de uma vez.</span>
+      <span>Vem como a maré chega ao cais:</span>
+      <span>primeiro o barulho miúdo da água,</span>
+      <span>depois o chão que já não é o mesmo.</span>
+    </p>
+
+    <p class="estrofe">
+      <span>Aprendi a não chamar de perda</span>
+      <span>o que apenas mudou de margem.</span>
+      <span>Cada quebra deixou uma fresta,</span>
+      <span>e foi por ela que a luz entrou.</span>
+    </p>
+
+    <p class="estrofe">
+      <span>E se me perguntarem quem sou,</span>
+      <span>direi que ainda estou a caminho:</span>
+      <span>o cais nunca foi o fim da viagem,</span>
+      <span>foi só o lugar onde aprendi a partir.</span>
+    </p>
+
+    <p class="fim"><b>Tonares</b>Caderno do Cais — Notas particulares</p>
+
+    <div class="acoes-intervalo">
+      <button type="button" class="btn-sutileza" id="btn-voltar-ceu">← Voltar para o céu</button>
+      <div class="acoes-compartilhar">
+        <button type="button" class="btn-sutileza" id="btn-modo-print">Modo print</button>
+        <button type="button" class="btn-sutileza btn-carmesim" id="btn-baixar-story">Baixar p/ Stories</button>
+      </div>
+    </div>
+  </main>
+
+  <button type="button" class="sair-print-dica" id="btn-sair-print">Toque aqui para sair do modo print</button>
+</section>
+
+<!-- Vista 3: Notas, Física & Arquivos -->
+<section class="vista-notas" id="vista-notas" aria-label="Notas, Física e Arquivos">
+  <main class="notas-main">
+    <header class="notas-cabecalho">
+      <h1>Notas, Física &amp; Arquivos</h1>
+      <p>Repositório em construção aos poucos — reunindo cadernos de física, registros do céu e fragmentos literários.</p>
+    </header>
+
+    <div class="notas-grade">
+      <article class="nota-card destaque-cais">
+        <div>
+          <span class="nota-etiqueta">Caderno do Cais · Tonares</span>
+          <h2>Intervalo</h2>
+          <p>Primeiro texto publicado no site. Disponível para leitura direta ou exportação em formato vertical para Stories.</p>
+        </div>
+        <div class="nota-rodape">
+          <span>Notas particulares</span>
+          <button type="button" class="nota-link-btn" id="btn-notas-intervalo">Abrir texto</button>
+        </div>
+      </article>
+
+      <article class="nota-card">
+        <div>
+          <span class="nota-etiqueta">Física &amp; Céu</span>
+          <h2>Cadernos de Física</h2>
+          <p>Espaço reservado para anotações de estudo, deduções, roteiros experimentais e registros de observação do céu.</p>
+        </div>
+        <div class="nota-rodape">
+          <span>Em preparação</span>
+        </div>
+      </article>
+
+      <article class="nota-card">
+        <div>
+          <span class="nota-etiqueta">Dados &amp; Meteoros</span>
+          <h2>Arquivos &amp; Códigos</h2>
+          <p>Espaço reservado para scripts, visualizações e documentos abertos ligados a física e computação científica.</p>
+        </div>
+        <div class="nota-rodape">
+          <span>Em preparação</span>
+        </div>
+      </article>
+
+      <article class="nota-card">
+        <div>
+          <span class="nota-etiqueta">Ensaios</span>
+          <h2>Outras margens</h2>
+          <p>Próximos fragmentos e textos curtos de Tonares que entrarão aqui conforme o caderno for crescendo.</p>
+        </div>
+        <div class="nota-rodape">
+          <span>Em preparação</span>
+        </div>
+      </article>
+    </div>
+  </main>
+</section>
 
 <script>
 (function () {
-  var c = document.getElementById("ceu"), x = c.getContext("2d");
+  var c = document.getElementById("ceu");
+  var x = c.getContext("2d");
   var contador = document.getElementById("contador");
   var dica = document.getElementById("dica");
   var reduzir = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var R = 1, W = 0, H = 0, estrelas = [], meteoros = [], faiscas = [], aneis = [];
-  var total = 0, ultimoToque = 0;
 
+  var R = 1, W = 0, H = 0;
+  var estrelas = [], meteoros = [], faiscas = [], aneis = [];
+  var total = 0;
+  var ponteiroX = 0.5, ponteiroY = 0.5;
+  var modoAtual = "ceu"; // "ceu" | "intervalo" | "notas"
+
+  var btnCeu = document.getElementById("btn-ceu");
+  var btnIntervalo = document.getElementById("btn-intervalo");
+  var btnNotas = document.getElementById("btn-notas");
+  var btnAbrirIntervalo = document.getElementById("btn-abrir-intervalo");
+  var btnVoltarCeu = document.getElementById("btn-voltar-ceu");
+  var btnNotasIntervalo = document.getElementById("btn-notas-intervalo");
+  var btnModoPrint = document.getElementById("btn-modo-print");
+  var btnSairPrint = document.getElementById("btn-sair-print");
+  var btnBaixarStory = document.getElementById("btn-baixar-story");
+  var btnSom = document.getElementById("btn-som");
+
+  // Áudio sutil (Web Audio API)
+  var audioCtx = null;
+  var somAtivo = false;
+
+  function iniciarAudio() {
+    if (!audioCtx) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) audioCtx = new Ctx();
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+  }
+
+  function tocarNotaMeteoro() {
+    if (!somAtivo || !audioCtx) return;
+    try {
+      var agora = audioCtx.currentTime;
+      var osc = audioCtx.createOscillator();
+      var ganho = audioCtx.createGain();
+      var notas = [293.66, 329.63, 392.00, 440.00, 523.25, 587.33];
+      var freq = notas[Math.floor(Math.random() * notas.length)];
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, agora);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.985, agora + 0.9);
+      ganho.gain.setValueAtTime(0.0001, agora);
+      ganho.gain.exponentialRampToValueAtTime(0.035, agora + 0.04);
+      ganho.gain.exponentialRampToValueAtTime(0.0001, agora + 1.1);
+      osc.connect(ganho);
+      ganho.connect(audioCtx.destination);
+      osc.start(agora);
+      osc.stop(agora + 1.15);
+    } catch (err) {}
+  }
+
+  btnSom.addEventListener("click", function () {
+    somAtivo = !somAtivo;
+    if (somAtivo) iniciarAudio();
+    btnSom.setAttribute("aria-pressed", String(somAtivo));
+    btnSom.textContent = somAtivo ? "Som: on" : "Som: off";
+  });
+
+  function definirModo(modo) {
+    modoAtual = modo;
+    document.body.classList.remove("modo-print");
+    document.body.classList.toggle("modo-intervalo", modo === "intervalo");
+    document.body.classList.toggle("modo-notas", modo === "notas");
+
+    btnCeu.classList.toggle("ativo", modo === "ceu");
+    btnIntervalo.classList.toggle("ativo", modo === "intervalo");
+    btnNotas.classList.toggle("ativo", modo === "notas");
+
+    if (modo !== "ceu") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    try {
+      history.replaceState(null, "", "#" + modo);
+    } catch (e) {}
+  }
+
+  btnCeu.addEventListener("click", function () { definirModo("ceu"); });
+  btnVoltarCeu.addEventListener("click", function () { definirModo("ceu"); });
+  btnIntervalo.addEventListener("click", function () { definirModo("intervalo"); });
+  btnAbrirIntervalo.addEventListener("click", function () { definirModo("intervalo"); });
+  btnNotasIntervalo.addEventListener("click", function () { definirModo("intervalo"); });
+  btnNotas.addEventListener("click", function () { definirModo("notas"); });
+
+  // Modo print limpo para capturar o texto inteiro
+  btnModoPrint.addEventListener("click", function () {
+    document.body.classList.add("modo-print");
+    window.scrollTo({ top: 0, behavior: "instant" });
+  });
+
+  btnSairPrint.addEventListener("click", function () {
+    document.body.classList.remove("modo-print");
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      if (document.body.classList.contains("modo-print")) {
+        document.body.classList.remove("modo-print");
+      } else if (modoAtual !== "ceu") {
+        definirModo("ceu");
+      }
+    }
+  });
+
+  // Gerar imagem 1080x1920 (Stories do Instagram) em PNG
+  btnBaixarStory.addEventListener("click", function () {
+    var cv = document.createElement("canvas");
+    cv.width = 1080;
+    cv.height = 1920;
+    var g = cv.getContext("2d");
+
+    // Fundo #0A0707 + brilho carmesim no topo
+    g.fillStyle = "#0A0707";
+    g.fillRect(0, 0, 1080, 1920);
+
+    var rad = g.createRadialGradient(540, 0, 40, 540, 0, 920);
+    rad.addColorStop(0, "rgba(176, 55, 43, 0.28)");
+    rad.addColorStop(0.7, "rgba(176, 55, 43, 0.05)");
+    rad.addColorStop(1, "rgba(10, 7, 7, 0)");
+    g.fillStyle = rad;
+    g.fillRect(0, 0, 1080, 1920);
+
+    // Poeira sutil de estrelas
+    for (var s = 0; s < 55; s++) {
+      g.fillStyle = "rgba(237, 230, 218, " + (Math.random() * 0.22 + 0.06) + ")";
+      g.beginPath();
+      g.arc(Math.random() * 1080, Math.random() * 1920, Math.random() * 1.6 + 0.5, 0, 6.283);
+      g.fill();
+    }
+
+    // Título Inter | valo
+    g.textBaseline = "middle";
+    g.font = 'italic 300 108px "Cormorant Garamond", Georgia, serif';
+    g.fillStyle = "#EDE6DA";
+    var w1 = g.measureText("Inter").width;
+    var w2 = g.measureText("valo").width;
+    var gap = 26;
+    var totalW = w1 + gap * 2 + 2 + w2;
+    var startX = (1080 - totalW) / 2;
+    var tituloY = 265;
+
+    g.textAlign = "left";
+    g.fillText("Inter", startX, tituloY);
+
+    // Fenda luminosa
+    g.save();
+    g.shadowColor = "rgba(176, 55, 43, 0.9)";
+    g.shadowBlur = 24;
+    g.fillStyle = "#EDE6DA";
+    g.fillRect(startX + w1 + gap, tituloY - 56, 2, 112);
+    g.restore();
+
+    g.fillText("valo", startX + w1 + gap * 2 + 2, tituloY);
+
+    // Estrofes
+    var estrofes = [
+      [
+        "Entre aquilo que fomos",
+        "e aquilo que estamos nos tornando,",
+        "existe um caminho",
+        "feito de rupturas, memórias e reconstruções.",
+        "Talvez seja nesse intervalo",
+        "que nasça um novo eu."
+      ],
+      [
+        "Não chega de uma vez.",
+        "Vem como a maré chega ao cais:",
+        "primeiro o barulho miúdo da água,",
+        "depois o chão que já não é o mesmo."
+      ],
+      [
+        "Aprendi a não chamar de perda",
+        "o que apenas mudou de margem.",
+        "Cada quebra deixou uma fresta,",
+        "e foi por ela que a luz entrou."
+      ],
+      [
+        "E se me perguntarem quem sou,",
+        "direi que ainda estou a caminho:",
+        "o cais nunca foi o fim da viagem,",
+        "foi só o lugar onde aprendi a partir."
+      ]
+    ];
+
+    var y = 415;
+    var margemX = 140;
+    g.font = '400 39px "Cormorant Garamond", Georgia, serif';
+    g.fillStyle = "#EDE6DA";
+    g.textAlign = "left";
+
+    estrofes.forEach(function (bloco) {
+      bloco.forEach(function (linha) {
+        g.fillText(linha, margemX, y);
+        y += 56;
+      });
+      y += 42;
+    });
+
+    // Linha divisória e assinatura
+    y += 14;
+    g.strokeStyle = "rgba(237, 230, 218, 0.2)";
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(margemX, y);
+    g.lineTo(1080 - margemX, y);
+    g.stroke();
+
+    y += 48;
+    g.font = 'italic 500 38px "Cormorant Garamond", Georgia, serif';
+    g.fillStyle = "#EDE6DA";
+    g.fillText("Tonares", margemX, y);
+
+    y += 44;
+    g.font = 'italic 400 30px "Cormorant Garamond", Georgia, serif';
+    g.fillStyle = "#A39A91";
+    g.fillText("Caderno do Cais — Notas particulares", margemX, y);
+
+    var link = document.createElement("a");
+    link.download = "intervalo-tonares-story.png";
+    link.href = cv.toDataURL("image/png");
+    link.click();
+  });
+
+  if (location.hash === "#intervalo") definirModo("intervalo");
+  else if (location.hash === "#notas") definirModo("notas");
+
+  // Universo de estrelas
   function ajustar() {
     R = window.devicePixelRatio || 1;
     W = c.width = innerWidth * R;
     H = c.height = innerHeight * R;
     estrelas = [];
-    for (var n = 0; n < 110; n++) estrelas.push({
-      x: Math.random() * W, y: Math.random() * H,
-      r: (Math.random() * 1.1 + 0.3) * R,
-      a: Math.random() * 0.5 + 0.25, f: Math.random() * 6.28, v: Math.random() * 0.002 + 0.0008
-    });
+    var qtd = Math.min(160, Math.max(95, Math.floor((innerWidth * innerHeight) / 9000)));
+    for (var n = 0; n < qtd; n++) {
+      var camada = Math.random();
+      estrelas.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: (Math.random() * 1.15 + 0.3) * R,
+        a: Math.random() * 0.52 + 0.22,
+        f: Math.random() * 6.28,
+        v: Math.random() * 0.002 + 0.0007,
+        prof: camada * 14 * R,
+        cor: Math.random() < 0.28 ? "#cfe3ff" : "#e9e4d8"
+      });
+    }
   }
 
-  // meteoro que entra de cima, à direita, e queima no ponto (tx, ty)
   function lancar(tx, ty, atraso) {
-    var ang = (Math.random() * 20 + 115) * Math.PI / 180; // direção de queda
-    var dist = (Math.random() * 120 + 220) * R;
+    var ang = (Math.random() * 20 + 115) * Math.PI / 180;
+    var dist = (Math.random() * 130 + 220) * R;
     meteoros.push({
-      sx: tx - Math.cos(ang) * dist, sy: ty - Math.sin(ang) * dist,
-      tx: tx, ty: ty, t: -(atraso || 0), dur: 38 + Math.random() * 14
+      sx: tx - Math.cos(ang) * dist,
+      sy: ty - Math.sin(ang) * dist,
+      tx: tx,
+      ty: ty,
+      t: -(atraso || 0),
+      dur: 38 + Math.random() * 14
     });
   }
 
   function queimar(m) {
     aneis.push({ x: m.tx, y: m.ty, r: 2 * R, a: 0.8 });
     for (var i = 0; i < 12; i++) {
-      var a = Math.random() * 6.28, v = (Math.random() * 1.6 + 0.4) * R;
-      faiscas.push({ x: m.tx, y: m.ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v, a: 1 });
+      var a = Math.random() * 6.28;
+      var v = (Math.random() * 1.6 + 0.4) * R;
+      faiscas.push({
+        x: m.tx,
+        y: m.ty,
+        vx: Math.cos(a) * v,
+        vy: Math.sin(a) * v,
+        a: 1
+      });
     }
+    tocarNotaMeteoro();
   }
 
   function toque(e) {
-    var px = e.clientX * R, py = e.clientY * R;
+    if (modoAtual !== "ceu") return;
+    if (e.target && e.target.closest && e.target.closest("button, a, nav")) return;
+
+    var px = e.clientX * R;
+    var py = e.clientY * R;
     lancar(px, py, 0);
     total++;
     contador.textContent = total + (total === 1 ? " meteoro" : " meteoros");
     dica.style.opacity = 0;
-    // a cada 10 toques, uma chuva
+
     if (total % 10 === 0) {
-      for (var i = 0; i < 14; i++) lancar(Math.random() * W, Math.random() * H * 0.8, i * 6);
+      for (var i = 0; i < 14; i++) {
+        lancar(Math.random() * W, Math.random() * H * 0.8, i * 6);
+      }
     }
-    ultimoToque = performance.now();
   }
+
+  addEventListener("pointermove", function (e) {
+    if (innerWidth > 0 && innerHeight > 0) {
+      ponteiroX = e.clientX / innerWidth;
+      ponteiroY = e.clientY / innerHeight;
+    }
+  });
 
   function quadro(agora) {
     x.clearRect(0, 0, W, H);
+    var offX = reduzir ? 0 : (ponteiroX - 0.5);
+    var offY = reduzir ? 0 : (ponteiroY - 0.5);
 
     estrelas.forEach(function (s) {
-      var a = reduzir ? s.a : s.a * (0.7 + 0.3 * Math.sin(agora * s.v + s.f));
-      x.globalAlpha = a; x.fillStyle = "#e9e4d8";
-      x.beginPath(); x.arc(s.x, s.y, s.r, 0, 6.283); x.fill();
+      var a = reduzir ? s.a : s.a * (0.68 + 0.32 * Math.sin(agora * s.v + s.f));
+      x.globalAlpha = a;
+      x.fillStyle = modoAtual === "intervalo" ? "#EDE6DA" : s.cor;
+      x.beginPath();
+      x.arc(s.x - offX * s.prof, s.y - offY * s.prof, s.r, 0, 6.283);
+      x.fill();
     });
 
-    // meteoro ocasional se ninguém tocar
-    if (!reduzir && meteoros.length === 0 && Math.random() < 0.004) {
+    if (!reduzir && meteoros.length === 0 && Math.random() < (modoAtual === "intervalo" ? 0.0018 : 0.0045)) {
       lancar(Math.random() * W * 0.8 + W * 0.1, Math.random() * H * 0.6 + H * 0.2, 0);
     }
 
@@ -118,34 +1124,59 @@
       m.t++;
       if (m.t < 0) return true;
       var p = Math.min(m.t / m.dur, 1);
-      var e = p * p * 0.6 + p * 0.4; // acelera ao entrar na atmosfera
-      var hx = m.sx + (m.tx - m.sx) * e, hy = m.sy + (m.ty - m.sy) * e;
+      var e = p * p * 0.6 + p * 0.4;
+      var hx = m.sx + (m.tx - m.sx) * e;
+      var hy = m.sy + (m.ty - m.sy) * e;
       var cauda = Math.min(m.t / 6, 1) * 90 * R;
       var dx = m.tx - m.sx, dy = m.ty - m.sy, d = Math.sqrt(dx * dx + dy * dy);
-      var ex = hx - dx / d * cauda, ey = hy - dy / d * cauda;
+      var ex = hx - dx / d * cauda;
+      var ey = hy - dy / d * cauda;
+
       var g = x.createLinearGradient(hx, hy, ex, ey);
       g.addColorStop(0, "rgba(255,255,255," + (1 - p * 0.3) + ")");
-      g.addColorStop(0.25, "rgba(207,227,255,0.7)");
+      g.addColorStop(0.25, modoAtual === "intervalo" ? "rgba(235,170,158,0.65)" : "rgba(207,227,255,0.75)");
       g.addColorStop(1, "rgba(207,227,255,0)");
-      x.globalAlpha = 1; x.strokeStyle = g; x.lineWidth = 2 * R; x.lineCap = "round";
-      x.beginPath(); x.moveTo(hx, hy); x.lineTo(ex, ey); x.stroke();
-      if (p >= 1) { queimar(m); return false; }
+      x.globalAlpha = 1;
+      x.strokeStyle = g;
+      x.lineWidth = 2 * R;
+      x.lineCap = "round";
+      x.beginPath();
+      x.moveTo(hx, hy);
+      x.lineTo(ex, ey);
+      x.stroke();
+
+      if (p >= 1) {
+        queimar(m);
+        return false;
+      }
       return true;
     });
 
     aneis = aneis.filter(function (r) {
-      r.r += 1.6 * R; r.a -= 0.025;
+      r.r += 1.6 * R;
+      r.a -= 0.025;
       if (r.a <= 0) return false;
-      x.globalAlpha = r.a; x.strokeStyle = "#cfe3ff"; x.lineWidth = 1 * R;
-      x.beginPath(); x.arc(r.x, r.y, r.r, 0, 6.283); x.stroke();
+      x.globalAlpha = r.a;
+      x.strokeStyle = modoAtual === "intervalo" ? "#e8a59b" : "#cfe3ff";
+      x.lineWidth = 1 * R;
+      x.beginPath();
+      x.arc(r.x, r.y, r.r, 0, 6.283);
+      x.stroke();
       return true;
     });
 
     faiscas = faiscas.filter(function (f) {
-      f.x += f.vx; f.y += f.vy; f.vx *= 0.96; f.vy *= 0.96; f.a -= 0.02;
+      f.x += f.vx;
+      f.y += f.vy;
+      f.vx *= 0.96;
+      f.vy *= 0.96;
+      f.a -= 0.02;
       if (f.a <= 0) return false;
-      x.globalAlpha = f.a; x.fillStyle = "#ffffff";
-      x.beginPath(); x.arc(f.x, f.y, 1.2 * R, 0, 6.283); x.fill();
+      x.globalAlpha = f.a;
+      x.fillStyle = "#ffffff";
+      x.beginPath();
+      x.arc(f.x, f.y, 1.2 * R, 0, 6.283);
+      x.fill();
       return true;
     });
 
@@ -160,3 +1191,4 @@
 </script>
 </body>
 </html>
+```
