@@ -735,62 +735,8 @@
   <button type="button" class="sair-print-dica" id="btn-sair-print">Toque aqui para sair do modo print</button>
 </section>
 
-<!-- Vista 3: Notas, Física & Arquivos -->
-<section class="vista-notas" id="vista-notas" aria-label="Notas, Física e Arquivos">
-  <main class="notas-main">
-    <header class="notas-cabecalho">
-      <h1>Notas, Física &amp; Arquivos</h1>
-      <p>Repositório em construção aos poucos — reunindo cadernos de física, registros do céu e fragmentos literários.</p>
-    </header>
-
-    <div class="notas-grade">
-      <article class="nota-card destaque-cais">
-        <div>
-          <span class="nota-etiqueta">Caderno do Cais · Tonares</span>
-          <h2>Intervalo</h2>
-          <p>Primeiro texto publicado no site. Disponível para leitura direta ou exportação em formato vertical para Stories.</p>
-        </div>
-        <div class="nota-rodape">
-          <span>Notas particulares</span>
-          <button type="button" class="nota-link-btn" id="btn-notas-intervalo">Abrir texto</button>
-        </div>
-      </article>
-
-      <article class="nota-card">
-        <div>
-          <span class="nota-etiqueta">Física &amp; Céu</span>
-          <h2>Cadernos de Física</h2>
-          <p>Espaço reservado para anotações de estudo, deduções, roteiros experimentais e registros de observação do céu.</p>
-        </div>
-        <div class="nota-rodape">
-          <span>Em preparação</span>
-        </div>
-      </article>
-
-      <article class="nota-card">
-        <div>
-          <span class="nota-etiqueta">Dados &amp; Meteoros</span>
-          <h2>Arquivos &amp; Códigos</h2>
-          <p>Espaço reservado para scripts, visualizações e documentos abertos ligados a física e computação científica.</p>
-        </div>
-        <div class="nota-rodape">
-          <span>Em preparação</span>
-        </div>
-      </article>
-
-      <article class="nota-card">
-        <div>
-          <span class="nota-etiqueta">Ensaios</span>
-          <h2>Outras margens</h2>
-          <p>Próximos fragmentos e textos curtos de Tonares que entrarão aqui conforme o caderno for crescendo.</p>
-        </div>
-        <div class="nota-rodape">
-          <span>Em preparação</span>
-        </div>
-      </article>
-    </div>
-  </main>
-</section>
+<!-- Vista 3: Notas, Física & Arquivos (vazia) -->
+<section class="vista-notas" id="vista-notas" aria-label="Notas, Física e Arquivos"></section>
 
 <script>
 (function () {
@@ -811,7 +757,6 @@
   var btnNotas = document.getElementById("btn-notas");
   var btnAbrirIntervalo = document.getElementById("btn-abrir-intervalo");
   var btnVoltarCeu = document.getElementById("btn-voltar-ceu");
-  var btnNotasIntervalo = document.getElementById("btn-notas-intervalo");
   var btnModoPrint = document.getElementById("btn-modo-print");
   var btnSairPrint = document.getElementById("btn-sair-print");
   var btnBaixarStory = document.getElementById("btn-baixar-story");
@@ -881,7 +826,6 @@
   btnVoltarCeu.addEventListener("click", function () { definirModo("ceu"); });
   btnIntervalo.addEventListener("click", function () { definirModo("intervalo"); });
   btnAbrirIntervalo.addEventListener("click", function () { definirModo("intervalo"); });
-  btnNotasIntervalo.addEventListener("click", function () { definirModo("intervalo"); });
   btnNotas.addEventListener("click", function () { definirModo("notas"); });
 
   // Modo print limpo para capturar o texto inteiro
