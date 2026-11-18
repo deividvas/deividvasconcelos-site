@@ -1,0 +1,42 @@
+{
+  "colecao": "Caderno do Cais — Notas particulares",
+  "autor": "Tonares",
+  "textos": [
+    {
+      "id": "intervalo",
+      "titulo": "Intervalo",
+      "tituloFenda": [
+        "Inter",
+        "valo"
+      ],
+      "estrofes": [
+        [
+          "Entre aquilo que fomos",
+          "e aquilo que estamos nos tornando,",
+          "existe um caminho",
+          "feito de rupturas, memórias e reconstruções.",
+          "Talvez seja nesse intervalo",
+          "que nasça um novo eu."
+        ],
+        [
+          "Não chega de uma vez.",
+          "Vem como a maré chega ao cais:",
+          "primeiro o barulho miúdo da água,",
+          "depois o chão que já não é o mesmo."
+        ],
+        [
+          "Aprendi a não chamar de perda",
+          "o que apenas mudou de margem.",
+          "Cada quebra deixou uma fresta,",
+          "e foi por ela que a luz entrou."
+        ],
+        [
+          "E se me perguntarem quem sou,",
+          "direi que ainda estou a caminho:",
+          "o cais nunca foi o fim da viagem,",
+          "foi só o lugar onde aprendi a partir."
+        ]
+      ]
+    }
+  ]
+}

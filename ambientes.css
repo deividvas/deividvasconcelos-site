@@ -1,0 +1,414 @@
+.vista-ceu {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 84px)
+    20px
+    calc(env(safe-area-inset-bottom, 0px) + 28px);
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 0.6s var(--curva-suave),
+    transform 0.6s var(--curva-suave),
+    visibility 0s linear 0s;
+}
+
+body[data-modo="intervalo"] .vista-ceu {
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    visibility 0s linear 0.45s;
+}
+
+.topo-ceu {
+  max-width: 520px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.topo-ceu h1 {
+  font-weight: 400;
+  font-size: clamp(28px, 6vw, 40px);
+  letter-spacing: 0.015em;
+  margin: 0;
+  color: var(--papel);
+}
+
+.sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 300;
+  color: var(--apagado);
+  margin: 10px 0 0;
+  letter-spacing: 0.04em;
+}
+
+.base-ceu {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.contador {
+  font-size: clamp(28px, 7.5vw, 44px);
+  font-weight: 400;
+  margin: 0;
+  min-height: 1.2em;
+  color: var(--papel);
+}
+
+.dica {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 300;
+  color: var(--apagado);
+  margin: 6px 0 0;
+  transition: opacity 0.8s ease;
+}
+
+.portal-intervalo {
+  pointer-events: auto;
+  margin-top: 24px;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(176, 55, 43, 0.5);
+  color: var(--bone);
+  padding: 4px 2px 6px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.portal-intervalo:hover {
+  border-bottom-color: var(--blood);
+  transform: translateY(-1px);
+}
+
+.portal-sub {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.rodape-ceu {
+  margin-top: 22px;
+}
+
+.direitos {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 300;
+  color: var(--apagado);
+  margin: 0;
+  opacity: 0.72;
+}
+
+.vista-intervalo {
+  position: relative;
+  z-index: 6;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.75s var(--curva-suave), transform 0.75s var(--curva-suave);
+}
+
+.vista-intervalo.ativa {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.intervalo-main {
+  position: relative;
+  max-width: 26rem;
+  margin: 0 auto;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 5rem)
+    1.5rem
+    calc(env(safe-area-inset-bottom, 0px) + 3.2rem);
+}
+
+.indice-caderno {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0 0 2.2rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(237, 230, 218, 0.12);
+}
+
+.indice-btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.indice-btn:hover {
+  color: var(--bone);
+}
+
+.indice-btn.ativo {
+  color: var(--bone);
+  border-bottom: 1px solid var(--blood);
+}
+
+.intervalo-titulo {
+  margin: 0 0 2rem;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(2.5rem, 11vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  color: var(--bone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.16em;
+  text-align: center;
+}
+
+.intervalo-titulo .fenda {
+  display: block;
+  width: 1px;
+  height: 1.05em;
+  background: var(--bone);
+  box-shadow:
+    0 0 0.35em 0.04em rgba(176, 55, 43, 0.8),
+    0 0 1.1em 0.1em rgba(176, 55, 43, 0.35);
+  transform-origin: center;
+}
+
+.vista-intervalo.ativa .intervalo-titulo .fenda {
+  animation: abreFenda 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.12s both;
+}
+
+.vista-intervalo.ativa .intervalo-titulo span {
+  animation: surgeTexto 2s ease-out 0.38s both;
+}
+
+@keyframes abreFenda {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes surgeTexto {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.estrofe {
+  margin: 0 0 1.25rem;
+  color: var(--bone);
+}
+
+.estrofe span {
+  display: block;
+  font-size: clamp(1.08rem, 3.8vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.42;
+  letter-spacing: 0.005em;
+}
+
+.estrofe span + span {
+  margin-top: 0.04rem;
+}
+
+.fim {
+  margin: 1.9rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(237, 230, 218, 0.18);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.fim b {
+  display: block;
+  font-weight: 500;
+  color: var(--bone);
+  font-size: 1.12rem;
+}
+
+.acoes-intervalo {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.acoes-compartilhar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.btn-texto {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(237, 230, 218, 0.22);
+  color: var(--muted);
+  padding: 3px 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+}
+
+.btn-texto:hover {
+  color: var(--bone);
+  border-bottom-color: rgba(237, 230, 218, 0.65);
+}
+
+.btn-texto.destaque {
+  color: var(--bone);
+  border-bottom-color: rgba(176, 55, 43, 0.65);
+}
+
+.btn-texto.destaque:hover {
+  border-bottom-color: var(--blood);
+}
+
+.btn-texto:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+body.modo-print .nav-barra,
+body.modo-print .acoes-intervalo,
+body.modo-print .indice-caderno {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.modo-print .intervalo-main {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+}
+
+.sair-print-dica {
+  display: none;
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: rgba(237, 230, 218, 0.5);
+  background: transparent;
+  border: 0;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+body.modo-print .sair-print-dica {
+  display: block;
+  animation: sumirDica 4s ease forwards;
+}
+
+@keyframes sumirDica {
+  0%, 65% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+@media print {
+  body,
+  body[data-modo="intervalo"] {
+    background: #ffffff !important;
+    color: #141210 !important;
+    overflow: visible !important;
+  }
+
+  .atmosfera,
+  canvas#ceu,
+  .grao-estatico,
+  .nav-barra,
+  .vista-ceu,
+  .acoes-intervalo,
+  .indice-caderno,
+  .sair-print-dica {
+    display: none !important;
+  }
+
+  .vista-intervalo {
+    display: block !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .intervalo-main {
+    max-width: 28rem;
+    padding: 2cm 0;
+  }
+
+  .intervalo-titulo,
+  .estrofe,
+  .fim b {
+    color: #141210 !important;
+  }
+
+  .intervalo-titulo .fenda {
+    background: #8c281e !important;
+    box-shadow: none !important;
+  }
+
+  .fim {
+    color: #55504a !important;
+    border-top-color: #d8d2c9 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vista-ceu,
+  .vista-intervalo,
+  .portal-intervalo {
+    transition: none !important;
+  }
+
+  .vista-intervalo.ativa .intervalo-titulo .fenda,
+  .vista-intervalo.ativa .intervalo-titulo span {
+    animation: none !important;
+  }
+}

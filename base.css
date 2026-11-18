@@ -1,0 +1,136 @@
+:root {
+  /* Paleta O Céu */
+  --ceu: #0c1020;
+  --ceu-topo: #070a15;
+  --ceu-horizonte: #131a33;
+  --papel: #e9e4d8;
+  --apagado: #7a819e;
+  --estrela-fria: #cfe3ff;
+
+  /* Paleta Intervalo (Tonares) */
+  --night: #0A0707;
+  --bone: #EDE6DA;
+  --muted: #A39A91;
+  --blood: #B0372B;
+
+  /* Tipografia */
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+
+  /* Curva de movimento editorial */
+  --curva-suave: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  color-scheme: dark;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background-color: var(--ceu);
+  color: var(--papel);
+  font-family: var(--serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  touch-action: manipulation;
+  transition: background-color 1.1s var(--curva-suave);
+}
+
+body[data-modo="intervalo"] {
+  background-color: var(--night);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 1px solid rgba(233, 228, 216, 0.55);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+body[data-modo="intervalo"] :focus-visible {
+  outline-color: rgba(176, 55, 43, 0.85);
+}
+
+.atmosfera {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+.atmosfera-ceu {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 105%, rgba(28, 40, 74, 0.45), transparent 70%),
+    radial-gradient(ellipse 65% 40% at 78% 15%, rgba(120, 155, 220, 0.07), transparent 70%),
+    linear-gradient(180deg, var(--ceu-topo) 0%, var(--ceu) 60%, var(--ceu-horizonte) 100%);
+}
+
+.atmosfera-intervalo {
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 70% 38% at 50% 0%, rgba(176, 55, 43, 0.22), transparent 70%),
+    var(--night);
+}
+
+body[data-modo="intervalo"] .atmosfera-ceu {
+  opacity: 0;
+}
+
+body[data-modo="intervalo"] .atmosfera-intervalo {
+  opacity: 1;
+}
+
+canvas#ceu {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  transition: opacity 1s ease;
+}
+
+body[data-modo="intervalo"] canvas#ceu {
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.grao-estatico {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.042;
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  transition: opacity 1s ease;
+}
+
+body[data-modo="intervalo"] .grao-estatico {
+  opacity: 0.075;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .atmosfera,
+  canvas#ceu,
+  .grao-estatico {
+    transition: none !important;
+  }
+}
